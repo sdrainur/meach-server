@@ -1,0 +1,38 @@
+package ru.sadyrov.meach.controller;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import ru.sadyrov.meach.security.JwtRequest;
+import ru.sadyrov.meach.security.JwtResponse;
+import ru.sadyrov.meach.security.RefreshJwtRequest;
+import ru.sadyrov.meach.services.AuthService;
+
+import javax.security.auth.message.AuthException;
+
+@RestController
+@RequestMapping("api/auth")
+@RequiredArgsConstructor
+@CrossOrigin(origins = {"http://localhost:8080", "http://10.17.33.199:8080/"})
+public class AuthController {
+
+    private final AuthService authService;
+
+    @PostMapping("/login")
+    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authRequest) throws AuthException {
+        final JwtResponse token = authService.login(authRequest);
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/token")
+    public ResponseEntity<JwtResponse> getewAccessToken(@RequestBody RefreshJwtRequest request) throws AuthException {
+        final JwtResponse token = authService.getAccessToken(request.getRefreshToken());
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<JwtResponse> getNewRefreshToken(@RequestBody RefreshJwtRequest request) throws AuthException {
+        final JwtResponse token = authService.refresh(request.getRefreshToken());
+        return ResponseEntity.ok(token);
+    }
+}
