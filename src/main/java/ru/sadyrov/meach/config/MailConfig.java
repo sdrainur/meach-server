@@ -9,7 +9,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import java.util.Properties;
 
 @Configuration
-public class    MailConfig {
+public class MailConfig {
     @Value("${spring.mail.host}")
     private String host;
 
@@ -21,7 +21,6 @@ public class    MailConfig {
 
     @Value("${spring.mail.port}")
     private int port;
-
 
     @Value("${mail.debug}")
     private String debug;
@@ -41,6 +40,12 @@ public class    MailConfig {
 
         properties.setProperty("mail.transport.protocol", protocol);
         properties.setProperty("mail.debug", debug);
+//        properties.setProperty("mail.smtp.ssl.trust", "smtp.yandex.ru");
+
+//        properties.put("mail.transport.protocol", "smtp");
+//        properties.put("mail.smtp.auth", "true");
+//        properties.put("mail.smtp.starttls.enable", "true");
+//        properties.put("mail.debug", "true");
 
         return mailSender;
     }

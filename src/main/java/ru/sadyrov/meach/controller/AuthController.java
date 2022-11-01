@@ -1,6 +1,7 @@
 package ru.sadyrov.meach.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sadyrov.meach.security.JwtRequest;
@@ -19,13 +20,16 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authRequest) throws AuthException {
+    public ResponseEntity<Object> login(@RequestBody JwtRequest authRequest) throws AuthException {
         final JwtResponse token = authService.login(authRequest);
-        return ResponseEntity.ok(token);
+        if(token!=null)
+            return new ResponseEntity<>(token, HttpStatus.OK);
+        else
+            return new ResponseEntity<>("Неверный логин или пароль", HttpStatus.BAD_REQUEST);
     }
 
     @PostMapping("/token")
-    public ResponseEntity<JwtResponse> getewAccessToken(@RequestBody RefreshJwtRequest request) throws AuthException {
+    public ResponseEntity<JwtResponse> getAccessToken(@RequestBody RefreshJwtRequest request) throws AuthException {
         final JwtResponse token = authService.getAccessToken(request.getRefreshToken());
         return ResponseEntity.ok(token);
     }

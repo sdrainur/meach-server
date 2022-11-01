@@ -1,7 +1,10 @@
 package ru.sadyrov.meach.controller;
 
 import lombok.Value;
+import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.transaction.annotation.Transactional;
@@ -13,10 +16,8 @@ import ru.sadyrov.meach.services.AuthService;
 import ru.sadyrov.meach.services.UserService;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @RestController
 public class MessageController {
@@ -32,7 +33,8 @@ public class MessageController {
 
     @GetMapping("/getMessages/{receiverLogin}")
     @CrossOrigin(origins = {"http://localhost:8080/", "http://10.17.33.199:8080/"})
-    public Set<Message> getMessages(@PathVariable String receiverLogin) {
+    public ResponseEntity<Object> getMessages(@PathVariable String receiverLogin) {
+        System.out.println(receiverLogin);
         /*System.out.println(receiverLogin);
         if (userService.getByLogin(receiverLogin).isPresent()) {
             System.out.println(authService.getAuthenticatedUser().getLogin());
@@ -47,6 +49,7 @@ public class MessageController {
         } else {
             return null;
         }*/
+        JSONArray jsonArray = new JSONArray();
         Set<Message> messages = new HashSet<>();
         messages.addAll(messageRepository.findBySenderAndReceiver(
                 authService.getAuthenticatedUser(),
@@ -56,7 +59,16 @@ public class MessageController {
                 userService.getByLogin(receiverLogin).get(),
                 authService.getAuthenticatedUser()
         ));
-        return messages;
+        for (Message message : messages) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("senderLogin", message.getSender().getLogin());
+            jsonObject.put("receiverLogin", message.getReceiver().getLogin());
+            jsonObject.put("text", message.getText());
+            jsonObject.put("messageDateTime", message.getMessageDateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
+            jsonArray.put(jsonObject);
+        }
+        System.out.println(jsonArray);
+        return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
 
 //    @MessageMapping("/addMessage")
@@ -74,13 +86,17 @@ public class MessageController {
     @SendTo("/topic/messages")
     public Message addMessage(Map<String, String> message) {
         System.out.println("sending message");
-        Message newMessage = new Message();
-        newMessage.setSender(userService.getByLogin(message.get("senderLogin")).get());
-        System.out.println(newMessage.getSender().getId());
-        newMessage.setReceiver(userService.getByLogin(message.get("receiverLogin")).get());
-        System.out.println(newMessage.getReceiver().getId());
-        newMessage.setText(message.get("text"));
-        newMessage.setMessageDateTime(LocalDateTime.now());
-        return messageRepository.save(newMessage);
+        System.out.println(message);
+        Optional<User> sender = userService.getByLogin(message.get("senderLogin"));
+        Optional<User> receiver = userService.getByLogin(message.get("receiverLogin"));
+        if(sender.isPresent() && receiver.isPresent()){
+            Message newMessage = new Message();
+            newMessage.setSender(sender.get());
+            newMessage.setReceiver(receiver.get());
+            newMessage.setText(message.get("text"));
+            newMessage.setMessageDateTime(LocalDateTime.now());
+            return messageRepository.save(newMessage);
+        }
+        return null;
     }
 }

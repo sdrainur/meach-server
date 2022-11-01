@@ -3,6 +3,7 @@ package ru.sadyrov.meach.services;
 import com.auth0.jwt.JWT;
 import io.jsonwebtoken.JwtParser;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.sadyrov.meach.domain.Role;
@@ -36,7 +37,7 @@ public class UserService{
 //    }
 
     public List<User> getAll() {
-        return this.userRepository.findAll();
+        return this.userRepository.findByActiveIs(true);
     }
 
     public Optional<User> getByLogin(String login) {
@@ -47,6 +48,7 @@ public class UserService{
         System.out.println(user.getPassword());
         User userFromDb = userRepository.findByLoginAndEmail(user.getLogin(), user.getEmail());
         if (userFromDb != null) {
+            System.out.println("exists");
             return false;
         }
         System.out.println("okadd");
@@ -70,6 +72,7 @@ public class UserService{
     }
 
     private void setActivationCode(User user){
+        System.out.println(user);
         user.setActivationCode(UUID.randomUUID().toString());
         if(!user.getEmail().isEmpty()){
             String message = String.format(
@@ -78,16 +81,39 @@ public class UserService{
                     user.getLogin(),
                     user.getActivationCode()
             );
-//            mailService.sendMessage(user.getEmail(), "Activation", message);
+            mailService.sendMessage(user.getEmail(), "Activation", message);
             System.out.println("Email was sent");
         }
     }
 
     public void getAuthenticatedLogin(String authHeader){
-        
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String[] chunks = authHeader.split(" ")[1].split("\\.");
         String result = new String(decoder.decode(chunks[1]));
         System.out.println(result);
     }
+
+    public boolean sendRequest(String senderLogin, String receiverLogin){
+        Optional<User> senderOptional = getByLogin(senderLogin);
+        Optional<User> receiverOptional = getByLogin(receiverLogin);
+        if(senderOptional.isPresent() && receiverOptional.isPresent()) {
+            User sender = senderOptional.get();
+            User receiver = receiverOptional.get();
+            Set<User> sentRequests = sender.getSentRequests();
+            Set<User> receivedRequests = receiver.getReceivedRequests();
+            sentRequests.add(receiver);
+            receivedRequests.add(sender);
+            sender.setSentRequests(sentRequests);
+            receiver.setReceivedRequests(receivedRequests);
+            userRepository.save(sender);
+            userRepository.save(receiver);
+            return true;
+        }
+        return false;
+    }
+
+//    public List<User> getSentRequests(){
+//        List<User> users = userRepository.findBySentRequests();
+//        return users;
+//    }
 }

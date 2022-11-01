@@ -54,7 +54,16 @@ public class User {
 
     @NotNull
     private boolean active;
+//
+//    @OneToMany
+//    private Set<Article> articles;
 
     @OneToMany
-    private Set<Article> articles;
+    private Set<User> sentRequests;
+
+    @OneToMany
+    private Set<User> receivedRequests;
+
+    @OneToMany
+    private Set<User> acceptedRequests;
 }

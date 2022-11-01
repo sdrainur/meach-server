@@ -27,11 +27,11 @@ public class Message {
     @JsonView(Views.FullMessage.class)
     private LocalDateTime messageDateTime;
 
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne
     @JoinColumn(name = "sender_id")
     private User sender;
 
-    @OneToOne(cascade = {CascadeType.ALL})
+    @OneToOne
     @JoinColumn(name = "receiver_id")
     private User receiver;
 
