@@ -99,18 +99,39 @@ public class UserService{
         if(senderOptional.isPresent() && receiverOptional.isPresent()) {
             User sender = senderOptional.get();
             User receiver = receiverOptional.get();
-            Set<User> sentRequests = sender.getSentRequests();
-            Set<User> receivedRequests = receiver.getReceivedRequests();
-            sentRequests.add(receiver);
-            receivedRequests.add(sender);
-            sender.setSentRequests(sentRequests);
-            receiver.setReceivedRequests(receivedRequests);
-            userRepository.save(sender);
-            userRepository.save(receiver);
-            return true;
+            if(!sender.getSentRequests().contains(receiver) && !receiver.getReceivedRequests().contains(sender)) {
+                Set<User> sentRequests = sender.getSentRequests();
+                Set<User> receivedRequests = receiver.getReceivedRequests();
+                sentRequests.add(receiver);
+                receivedRequests.add(sender);
+                sender.setSentRequests(sentRequests);
+                receiver.setReceivedRequests(receivedRequests);
+                userRepository.save(sender);
+                userRepository.save(receiver);
+                return true;
+            }
         }
         return false;
     }
+
+    public boolean addAcceptedUser(String senderLogin, String receiverLogin){
+        User sender = userRepository.findByLogin(senderLogin);
+        User receiver = userRepository.findByLogin(receiverLogin);
+        if(sender!=null && receiver!=null) {
+            if (sender.getSentRequests().contains(receiver) && receiver.getReceivedRequests().contains(sender)) {
+                sender.getFriends().add(receiver);
+                receiver.getFriends().add(sender);
+                sender.getSentRequests().remove(receiver);
+                receiver.getReceivedRequests().remove(sender);
+                userRepository.save(sender);
+                userRepository.save(receiver);
+                return true;
+            }
+            return false;
+        }
+        return false;
+    }
+
 
 //    public List<User> getSentRequests(){
 //        List<User> users = userRepository.findBySentRequests();

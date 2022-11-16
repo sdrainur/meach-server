@@ -91,7 +91,7 @@ public class UserController {
     }
 
     @GetMapping("/get-sent-requests")
-    public ResponseEntity<Object> getSentRequests(){
+    public ResponseEntity<Object> getSentRequests() {
         User user = authService.getAuthenticatedUser();
         Set<User> users = user.getSentRequests();
         JSONArray jsonArray = new JSONArray();
@@ -106,7 +106,7 @@ public class UserController {
     }
 
     @GetMapping("/get-received-requests")
-    public ResponseEntity<Object> getReceivedRequests(){
+    public ResponseEntity<Object> getReceivedRequests() {
         User user = authService.getAuthenticatedUser();
         Set<User> users = user.getReceivedRequests();
         JSONArray jsonArray = new JSONArray();
@@ -118,5 +118,43 @@ public class UserController {
             jsonArray.put(jsonObject);
         }
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
+    }
+
+    @GetMapping("/get-friends")
+    public ResponseEntity<Object> getFriends(){
+        System.out.println();
+        User user = authService.getAuthenticatedUser();
+        Set<User> friends = user.getFriends();
+        JSONArray jsonArray = new JSONArray();
+        for (User friend : friends) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("login", friend.getLogin());
+            jsonObject.put("firstName", friend.getFirstName());
+            jsonObject.put("secondName", friend.getSecondName());
+            jsonArray.put(jsonObject);
+        }
+        return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
+    }
+
+//    @CrossOrigin(origins = {"http://localhost:8080", "http://10.17.33.199:8080/"})
+    @PostMapping("/accept-request/{login}")
+    public ResponseEntity<Object> acceptRequest(@PathVariable String login) {
+        User authenticatedUser = authService.getAuthenticatedUser();
+        if (userService.addAcceptedUser(
+                login,
+                authenticatedUser.getLogin()
+        )) {
+            JSONArray jsonArray = new JSONArray();
+            for (User friend : authenticatedUser.getFriends()) {
+                System.out.println(friend);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("login", friend.getLogin());
+                jsonObject.put("firstName", friend.getFirstName());
+                jsonObject.put("secondName", friend.getSecondName());
+                jsonArray.put(jsonObject);
+            }
+            return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
     }
 }

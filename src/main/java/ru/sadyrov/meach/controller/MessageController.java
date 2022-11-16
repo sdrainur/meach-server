@@ -84,9 +84,7 @@ public class MessageController {
     @Transactional
     @MessageMapping("/addMessage")
     @SendTo("/topic/messages")
-    public Message addMessage(Map<String, String> message) {
-        System.out.println("sending message");
-        System.out.println(message);
+    public String addMessage(Map<String, String> message) {
         Optional<User> sender = userService.getByLogin(message.get("senderLogin"));
         Optional<User> receiver = userService.getByLogin(message.get("receiverLogin"));
         if(sender.isPresent() && receiver.isPresent()){
@@ -95,7 +93,15 @@ public class MessageController {
             newMessage.setReceiver(receiver.get());
             newMessage.setText(message.get("text"));
             newMessage.setMessageDateTime(LocalDateTime.now());
-            return messageRepository.save(newMessage);
+            messageRepository.save(newMessage);
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("senderLogin", message.get("senderLogin"));
+            jsonObject.put("receiverLogin", message.get("receiverLogin"));
+            jsonObject.put("text", newMessage.getText());
+            jsonObject.put("messageDateTime", newMessage.getMessageDateTime().format(
+                    DateTimeFormatter.ofPattern("HH:mm")
+            ));
+            return jsonObject.toString();
         }
         return null;
     }

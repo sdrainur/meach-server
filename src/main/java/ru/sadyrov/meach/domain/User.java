@@ -64,6 +64,9 @@ public class User {
     @OneToMany
     private Set<User> receivedRequests;
 
-    @OneToMany
-    private Set<User> acceptedRequests;
+    @ManyToMany
+    private Set<User> friends;
+
+    @ManyToMany
+    private Set<Cathegory> cathegories;
 }
