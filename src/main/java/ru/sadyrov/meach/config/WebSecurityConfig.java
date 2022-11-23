@@ -34,7 +34,8 @@ public class WebSecurityConfig{
                                         "/api/auth/token",
                                         "/signup",
                                         "/signup/activate",
-                                        "/gs-guide-websocket/**"
+                                        "/gs-guide-websocket/**",
+                                        "/cathegory/get-all"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                                 .and()

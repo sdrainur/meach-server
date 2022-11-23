@@ -14,7 +14,7 @@ import java.util.*;
 
 
 @Service
-public class UserService{
+public class UserService {
 
     private final UserRepository userRepository;
 
@@ -22,13 +22,18 @@ public class UserService{
 
     private final MailService mailService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, MailService mailService) {
+
+    public UserService(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            MailService mailService
+    ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.mailService = mailService;
     }
 
-    public User loadUserByUsername(String username){
+    public User loadUserByUsername(String username) {
         return userRepository.findByLogin(username);
     }
 //    public UserService(UserRepository userRepository) {
@@ -59,10 +64,12 @@ public class UserService{
         userRepository.save(user);
         return true;
     }
+
     public boolean activateUser(String activationCode) {
-        System.out.println(activationCode.getClass());
+        System.out.println(activationCode);
         User user = userRepository.findByActivationCode(activationCode);
-        if (user == null){
+        if (user == null) {
+            System.out.println("Not found");
             return false;
         }
         user.setActive(true);
@@ -71,10 +78,10 @@ public class UserService{
         return true;
     }
 
-    private void setActivationCode(User user){
+    private void setActivationCode(User user) {
         System.out.println(user);
         user.setActivationCode(UUID.randomUUID().toString());
-        if(!user.getEmail().isEmpty()){
+        if (!user.getEmail().isEmpty()) {
             String message = String.format(
                     "Hello, %s \n" +
                             "Welcome to meach! Your activation code: %s",
@@ -86,20 +93,20 @@ public class UserService{
         }
     }
 
-    public void getAuthenticatedLogin(String authHeader){
+    public void getAuthenticatedLogin(String authHeader) {
         Base64.Decoder decoder = Base64.getUrlDecoder();
         String[] chunks = authHeader.split(" ")[1].split("\\.");
         String result = new String(decoder.decode(chunks[1]));
         System.out.println(result);
     }
 
-    public boolean sendRequest(String senderLogin, String receiverLogin){
+    public boolean sendRequest(String senderLogin, String receiverLogin) {
         Optional<User> senderOptional = getByLogin(senderLogin);
         Optional<User> receiverOptional = getByLogin(receiverLogin);
-        if(senderOptional.isPresent() && receiverOptional.isPresent()) {
+        if (senderOptional.isPresent() && receiverOptional.isPresent()) {
             User sender = senderOptional.get();
             User receiver = receiverOptional.get();
-            if(!sender.getSentRequests().contains(receiver) && !receiver.getReceivedRequests().contains(sender)) {
+            if (!sender.getSentRequests().contains(receiver) && !receiver.getReceivedRequests().contains(sender)) {
                 Set<User> sentRequests = sender.getSentRequests();
                 Set<User> receivedRequests = receiver.getReceivedRequests();
                 sentRequests.add(receiver);
@@ -114,10 +121,10 @@ public class UserService{
         return false;
     }
 
-    public boolean addAcceptedUser(String senderLogin, String receiverLogin){
+    public boolean addAcceptedUser(String senderLogin, String receiverLogin) {
         User sender = userRepository.findByLogin(senderLogin);
         User receiver = userRepository.findByLogin(receiverLogin);
-        if(sender!=null && receiver!=null) {
+        if (sender != null && receiver != null) {
             if (sender.getSentRequests().contains(receiver) && receiver.getReceivedRequests().contains(sender)) {
                 sender.getFriends().add(receiver);
                 receiver.getFriends().add(sender);
@@ -132,9 +139,14 @@ public class UserService{
         return false;
     }
 
-
-//    public List<User> getSentRequests(){
-//        List<User> users = userRepository.findBySentRequests();
-//        return users;
-//    }
+    public boolean deleteFriend(User user, String DeletedUserid) {
+        Set<User> friends = user.getFriends();
+        User deletedUser = userRepository.findByLogin(DeletedUserid);
+        if (deletedUser != null) {
+            friends.remove(deletedUser);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
 }

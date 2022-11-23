@@ -58,10 +58,10 @@ public class User {
 //    @OneToMany
 //    private Set<Article> articles;
 
-    @OneToMany
+    @ManyToMany
     private Set<User> sentRequests;
 
-    @OneToMany
+    @ManyToMany
     private Set<User> receivedRequests;
 
     @ManyToMany

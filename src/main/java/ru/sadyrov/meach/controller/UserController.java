@@ -5,6 +5,7 @@ import org.json.JSONObject;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.sadyrov.meach.domain.User;
 import ru.sadyrov.meach.repository.UserRepository;
@@ -83,6 +84,7 @@ public class UserController {
     }
 
     @PostMapping("/send-request/{login}")
+    @Transactional
     public ResponseEntity<Object> sendRequest(@PathVariable String login) {
         User authUser = authService.getAuthenticatedUser();
         if (userService.sendRequest(authUser.getLogin(), login))
@@ -122,12 +124,12 @@ public class UserController {
 
     @GetMapping("/get-friends")
     public ResponseEntity<Object> getFriends(){
-        System.out.println();
         User user = authService.getAuthenticatedUser();
         Set<User> friends = user.getFriends();
         JSONArray jsonArray = new JSONArray();
         for (User friend : friends) {
             JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", friend.getId());
             jsonObject.put("login", friend.getLogin());
             jsonObject.put("firstName", friend.getFirstName());
             jsonObject.put("secondName", friend.getSecondName());
@@ -156,5 +158,26 @@ public class UserController {
             return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @DeleteMapping("/delete-friend/{login}")
+    public ResponseEntity<Object> deleteFriend(@PathVariable String login){
+        User user = authService.getAuthenticatedUser();
+        System.out.println(login);
+        if(userService.deleteFriend(user, login)){
+            Set<User> friends = user.getFriends();
+            JSONArray jsonArray = new JSONArray();
+            for (User friend : friends) {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("id", friend.getId());
+                jsonObject.put("login", friend.getLogin());
+                jsonObject.put("firstName", friend.getFirstName());
+                jsonObject.put("secondName", friend.getSecondName());
+                jsonArray.put(jsonObject);
+            }
+            return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
     }
 }
