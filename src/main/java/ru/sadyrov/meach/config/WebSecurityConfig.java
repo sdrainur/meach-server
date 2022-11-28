@@ -35,7 +35,8 @@ public class WebSecurityConfig{
                                         "/signup",
                                         "/signup/activate",
                                         "/gs-guide-websocket/**",
-                                        "/cathegory/get-all"
+                                        "/signup/reset-password",
+                                        "/signup/set-password"
                                 ).permitAll()
                                 .anyRequest().authenticated()
                                 .and()

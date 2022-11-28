@@ -2,6 +2,8 @@ package ru.sadyrov.meach.services;
 
 import com.auth0.jwt.JWT;
 import io.jsonwebtoken.JwtParser;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -49,18 +51,38 @@ public class UserService {
         return Optional.ofNullable(this.userRepository.findByLogin(login));
     }
 
-    public boolean addUser(User user) {
+    public Optional<User> getByMail(String mail) {
+        return Optional.ofNullable(this.userRepository.findByEmail(mail));
+    }
+
+    public void addUser(User user) {
         System.out.println(user.getPassword());
-        User userFromDb = userRepository.findByLoginAndEmail(user.getLogin(), user.getEmail());
-        if (userFromDb != null) {
-            System.out.println("exists");
-            return false;
-        }
+//        User userFromDb = userRepository.findByLoginAndEmail(user.getLogin(), user.getEmail());
+//        if (userFromDb != null) {
+//            System.out.println("exists");
+//            return false;
+//        }
         System.out.println("okadd");
         user.setActive(false);
         user.setRoles(Collections.singleton(Role.USER));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         setActivationCode(user);
+        userRepository.save(user);
+//        return true;
+    }
+
+    public void resetPassword(User user) {
+        setActivationCode(user);
+        userRepository.save(user);
+    }
+
+    public boolean setPassword(String activationCode, String password) {
+        User user = userRepository.findByActivationCode(activationCode);
+        if (user == null){
+            return false;
+        }
+        user.setActivationCode(null);
+        user.setPassword(passwordEncoder.encode(password));
         userRepository.save(user);
         return true;
     }
@@ -148,5 +170,35 @@ public class UserService {
             return true;
         }
         return false;
+    }
+
+    public boolean changeStatus(String login, boolean status){
+        System.out.println(login);
+        Optional<User> userOptional = getByLogin(login);
+        if(userOptional.isPresent()){
+            User user = userOptional.get();
+            user.setReadyToMeet(status);
+            userRepository.save(user);
+            return true;
+        }
+        return false;
+    }
+
+    public JSONArray createUsersJson(List<User> users){
+        System.out.println(users);
+        JSONArray jsonArray = new JSONArray();
+        for (User user : users) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("firstName", user.getFirstName());
+            jsonObject.put("secondName", user.getSecondName());
+            jsonObject.put("login", user.getLogin());
+            jsonObject.put("readyToMeet", user.isReadyToMeet());
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+
+    public List<User> getReadyToMeetUsers(){
+        return userRepository.findByReadyToMeet(true);
     }
 }

@@ -21,9 +21,11 @@ public class User {
 
     @NotBlank(message = "Введите ваш e-mail")
     @Email(message = "Введите корректный e-mail")
+    @Column(unique = true)
     private String email;
 
     @NotBlank(message = "Введите логин")
+    @Column(unique = true)
 //    @Pattern(regexp = "^[a-zA-Z]+$", message = "Логин не должен содержать кириллицу")
     private String login;
 
@@ -67,6 +69,6 @@ public class User {
     @ManyToMany
     private Set<User> friends;
 
-    @ManyToMany
-    private Set<Cathegory> cathegories;
+    @NotNull
+    private boolean readyToMeet;
 }

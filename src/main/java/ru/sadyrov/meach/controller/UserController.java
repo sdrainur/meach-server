@@ -2,14 +2,12 @@ package ru.sadyrov.meach.controller;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import ru.sadyrov.meach.domain.User;
 import ru.sadyrov.meach.repository.UserRepository;
-import ru.sadyrov.meach.security.JwtProvider;
 import ru.sadyrov.meach.services.AuthService;
 import ru.sadyrov.meach.services.UserService;
 
@@ -55,16 +53,11 @@ public class UserController {
             user = userRepository.findByLogin(login);
         else
             user = userRepository.findByLogin(authService.getAuthInfo().getUsername());
-        //        Map<String, String> response = new HashMap<>();
-//        response.put("firstName", user.getFirstName());
-//        response.put("secondName", user.getSecondName());
-//        response.put("login", user.getLogin());
-//        response.put("city", user.getCity());
-//        System.out.println(response);
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("firstName", user.getFirstName());
         jsonObject.put("secondName", user.getSecondName());
         jsonObject.put("login", user.getLogin());
+        jsonObject.put("readyToMeet", user.isReadyToMeet());
         jsonObject.put("city", user.getCity());
         return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
@@ -78,6 +71,7 @@ public class UserController {
             jsonObject.put("firstName", user.getFirstName());
             jsonObject.put("secondName", user.getSecondName());
             jsonObject.put("login", user.getLogin());
+            jsonObject.put("readyToMeet", user.isReadyToMeet());
             jsonArray.put(jsonObject);
         }
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
@@ -123,7 +117,7 @@ public class UserController {
     }
 
     @GetMapping("/get-friends")
-    public ResponseEntity<Object> getFriends(){
+    public ResponseEntity<Object> getFriends() {
         User user = authService.getAuthenticatedUser();
         Set<User> friends = user.getFriends();
         JSONArray jsonArray = new JSONArray();
@@ -138,7 +132,7 @@ public class UserController {
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
 
-//    @CrossOrigin(origins = {"http://localhost:8080", "http://10.17.33.199:8080/"})
+    //    @CrossOrigin(origins = {"http://localhost:8080", "http://10.17.33.199:8080/"})
     @PostMapping("/accept-request/{login}")
     public ResponseEntity<Object> acceptRequest(@PathVariable String login) {
         User authenticatedUser = authService.getAuthenticatedUser();
@@ -161,10 +155,10 @@ public class UserController {
     }
 
     @DeleteMapping("/delete-friend/{login}")
-    public ResponseEntity<Object> deleteFriend(@PathVariable String login){
+    public ResponseEntity<Object> deleteFriend(@PathVariable String login) {
         User user = authService.getAuthenticatedUser();
         System.out.println(login);
-        if(userService.deleteFriend(user, login)){
+        if (userService.deleteFriend(user, login)) {
             Set<User> friends = user.getFriends();
             JSONArray jsonArray = new JSONArray();
             for (User friend : friends) {
@@ -179,5 +173,25 @@ public class UserController {
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @PostMapping("/change-status")
+    public ResponseEntity<String> changeStatus(@RequestBody Map<String, String> response) {
+        System.out.println(response);
+        if (userService.changeStatus(
+                response.get("login"),
+                Boolean.parseBoolean(response.get("status"))
+        )) {
+            return new ResponseEntity<>("Статус изменен", HttpStatus.OK);
+        }
+        return new ResponseEntity<>("Статус не изменен", HttpStatus.BAD_REQUEST);
+    }
+
+    @GetMapping("/get-ready-to-meet-users")
+    public ResponseEntity<String> getReadyToMeetUsers() {
+        JSONArray users = userService.createUsersJson(
+                userService.getReadyToMeetUsers()
+        );
+        return new ResponseEntity<>(users.toString(), HttpStatus.OK);
     }
 }
