@@ -58,22 +58,22 @@ public class UserController {
         jsonObject.put("secondName", user.getSecondName());
         jsonObject.put("login", user.getLogin());
         jsonObject.put("readyToMeet", user.isReadyToMeet());
-        jsonObject.put("city", user.getCity());
         return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
     }
 
     @GetMapping("/users")
     public ResponseEntity<Object> allUsers() {
-        JSONArray jsonArray = new JSONArray();
+//        JSONArray jsonArray = new JSONArray();
         List<User> users = userService.getAll();
-        for (User user : users) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("firstName", user.getFirstName());
-            jsonObject.put("secondName", user.getSecondName());
-            jsonObject.put("login", user.getLogin());
-            jsonObject.put("readyToMeet", user.isReadyToMeet());
-            jsonArray.put(jsonObject);
-        }
+//        for (User user : users) {
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("firstName", user.getFirstName());
+//            jsonObject.put("secondName", user.getSecondName());
+//            jsonObject.put("login", user.getLogin());
+//            jsonObject.put("readyToMeet", user.isReadyToMeet());
+//            jsonArray.put(jsonObject);
+//        }
+        JSONArray jsonArray = userService.createUsersJson(users);
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
 
@@ -90,14 +90,15 @@ public class UserController {
     public ResponseEntity<Object> getSentRequests() {
         User user = authService.getAuthenticatedUser();
         Set<User> users = user.getSentRequests();
-        JSONArray jsonArray = new JSONArray();
-        for (User u : users) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("login", u.getLogin());
-            jsonObject.put("firstName", u.getFirstName());
-            jsonObject.put("secondName", u.getSecondName());
-            jsonArray.put(jsonObject);
-        }
+//        JSONArray jsonArray = new JSONArray();
+//        for (User u : users) {
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("login", u.getLogin());
+//            jsonObject.put("firstName", u.getFirstName());
+//            jsonObject.put("secondName", u.getSecondName());
+//            jsonArray.put(jsonObject);
+//        }
+        JSONArray jsonArray = userService.createUsersJson(users);
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
 
@@ -105,14 +106,15 @@ public class UserController {
     public ResponseEntity<Object> getReceivedRequests() {
         User user = authService.getAuthenticatedUser();
         Set<User> users = user.getReceivedRequests();
-        JSONArray jsonArray = new JSONArray();
-        for (User u : users) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("login", u.getLogin());
-            jsonObject.put("firstName", u.getFirstName());
-            jsonObject.put("secondName", u.getSecondName());
-            jsonArray.put(jsonObject);
-        }
+//        JSONArray jsonArray = new JSONArray();
+//        for (User u : users) {
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("login", u.getLogin());
+//            jsonObject.put("firstName", u.getFirstName());
+//            jsonObject.put("secondName", u.getSecondName());
+//            jsonArray.put(jsonObject);
+//        }
+        JSONArray jsonArray = userService.createUsersJson(users);
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
 
@@ -120,19 +122,20 @@ public class UserController {
     public ResponseEntity<Object> getFriends() {
         User user = authService.getAuthenticatedUser();
         Set<User> friends = user.getFriends();
-        JSONArray jsonArray = new JSONArray();
-        for (User friend : friends) {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("id", friend.getId());
-            jsonObject.put("login", friend.getLogin());
-            jsonObject.put("firstName", friend.getFirstName());
-            jsonObject.put("secondName", friend.getSecondName());
-            jsonArray.put(jsonObject);
-        }
+//        JSONArray jsonArray = new JSONArray();
+//        for (User friend : friends) {
+//            JSONObject jsonObject = new JSONObject();
+//            jsonObject.put("id", friend.getId());
+//            jsonObject.put("login", friend.getLogin());
+//            jsonObject.put("firstName", friend.getFirstName());
+//            jsonObject.put("secondName", friend.getSecondName());
+//            jsonArray.put(jsonObject);
+//        }
+        JSONArray jsonArray = userService.createUsersJson(friends);
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
 
-    //    @CrossOrigin(origins = {"http://localhost:8080", "http://10.17.33.199:8080/"})
+    @CrossOrigin(origins = {"http://localhost:8080", "http://10.17.33.199:8080/"})
     @PostMapping("/accept-request/{login}")
     public ResponseEntity<Object> acceptRequest(@PathVariable String login) {
         User authenticatedUser = authService.getAuthenticatedUser();
@@ -140,15 +143,16 @@ public class UserController {
                 login,
                 authenticatedUser.getLogin()
         )) {
-            JSONArray jsonArray = new JSONArray();
-            for (User friend : authenticatedUser.getFriends()) {
-                System.out.println(friend);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("login", friend.getLogin());
-                jsonObject.put("firstName", friend.getFirstName());
-                jsonObject.put("secondName", friend.getSecondName());
-                jsonArray.put(jsonObject);
-            }
+//            JSONArray jsonArray = new JSONArray();
+//            for (User friend : authenticatedUser.getFriends()) {
+//                System.out.println(friend);
+//                JSONObject jsonObject = new JSONObject();
+//                jsonObject.put("login", friend.getLogin());
+//                jsonObject.put("firstName", friend.getFirstName());
+//                jsonObject.put("secondName", friend.getSecondName());
+//                jsonArray.put(jsonObject);
+//            }
+            JSONArray jsonArray = userService.createUsersJson(authenticatedUser.getFriends());
             return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -160,15 +164,16 @@ public class UserController {
         System.out.println(login);
         if (userService.deleteFriend(user, login)) {
             Set<User> friends = user.getFriends();
-            JSONArray jsonArray = new JSONArray();
-            for (User friend : friends) {
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("id", friend.getId());
-                jsonObject.put("login", friend.getLogin());
-                jsonObject.put("firstName", friend.getFirstName());
-                jsonObject.put("secondName", friend.getSecondName());
-                jsonArray.put(jsonObject);
-            }
+//            JSONArray jsonArray = new JSONArray();
+//            for (User friend : friends) {
+//                JSONObject jsonObject = new JSONObject();
+//                jsonObject.put("id", friend.getId());
+//                jsonObject.put("login", friend.getLogin());
+//                jsonObject.put("firstName", friend.getFirstName());
+//                jsonObject.put("secondName", friend.getSecondName());
+//                jsonArray.put(jsonObject);
+//            }
+            JSONArray jsonArray = userService.createUsersJson(friends);
             return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);

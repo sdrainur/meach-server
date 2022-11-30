@@ -1,11 +1,7 @@
 package ru.sadyrov.meach.services;
 
-import com.auth0.jwt.JWT;
-import io.jsonwebtoken.JwtParser;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import ru.sadyrov.meach.domain.Role;
@@ -78,7 +74,7 @@ public class UserService {
 
     public boolean setPassword(String activationCode, String password) {
         User user = userRepository.findByActivationCode(activationCode);
-        if (user == null){
+        if (user == null) {
             return false;
         }
         user.setActivationCode(null);
@@ -102,7 +98,7 @@ public class UserService {
 
     private void setActivationCode(User user) {
         System.out.println(user);
-        user.setActivationCode(UUID.randomUUID().toString());
+        user.setActivationCode(UUID.randomUUID().toString().replaceAll("[^0-9]", "").substring(0, 5));
         if (!user.getEmail().isEmpty()) {
             String message = String.format(
                     "Hello, %s \n" +
@@ -172,10 +168,10 @@ public class UserService {
         return false;
     }
 
-    public boolean changeStatus(String login, boolean status){
+    public boolean changeStatus(String login, boolean status) {
         System.out.println(login);
         Optional<User> userOptional = getByLogin(login);
-        if(userOptional.isPresent()){
+        if (userOptional.isPresent()) {
             User user = userOptional.get();
             user.setReadyToMeet(status);
             userRepository.save(user);
@@ -184,8 +180,7 @@ public class UserService {
         return false;
     }
 
-    public JSONArray createUsersJson(List<User> users){
-        System.out.println(users);
+    public JSONArray createUsersJson(List<User> users) {
         JSONArray jsonArray = new JSONArray();
         for (User user : users) {
             JSONObject jsonObject = new JSONObject();
@@ -198,7 +193,20 @@ public class UserService {
         return jsonArray;
     }
 
-    public List<User> getReadyToMeetUsers(){
+    public JSONArray createUsersJson(Set<User> users) {
+        JSONArray jsonArray = new JSONArray();
+        for (User user : users) {
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("firstName", user.getFirstName());
+            jsonObject.put("secondName", user.getSecondName());
+            jsonObject.put("login", user.getLogin());
+            jsonObject.put("readyToMeet", user.isReadyToMeet());
+            jsonArray.put(jsonObject);
+        }
+        return jsonArray;
+    }
+
+    public List<User> getReadyToMeetUsers() {
         return userRepository.findByReadyToMeet(true);
     }
 }

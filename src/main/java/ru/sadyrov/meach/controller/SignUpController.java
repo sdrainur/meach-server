@@ -3,10 +3,7 @@ package ru.sadyrov.meach.controller;
 import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.sadyrov.meach.domain.User;
 import ru.sadyrov.meach.repository.UserRepository;
 import ru.sadyrov.meach.services.UserService;
@@ -26,7 +23,7 @@ public class SignUpController {
     }
 
     @PostMapping("/signup")
-    ResponseEntity<String> signUp(@RequestBody User user) {
+    public ResponseEntity<String> signUp(@RequestBody User user) {
         System.out.println("signing up");
         System.out.println(user.isReadyToMeet());
 //        if (userService.addUser(user))
