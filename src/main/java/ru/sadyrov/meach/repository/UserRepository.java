@@ -1,6 +1,8 @@
 package ru.sadyrov.meach.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import ru.sadyrov.meach.domain.User;
 
 import java.util.List;
@@ -20,4 +22,14 @@ public interface UserRepository extends JpaRepository<User, Long> {
     User findByLoginAndEmail(String login, String email);
 
     List<User> findByReadyToMeet(boolean readyToMeet);
+
+    @Query(value = "SELECT * FROM usr u WHERE u.description LIKE %:substring%", nativeQuery = true)
+    List<User> findByDescription(@Param("substring") String substring);
+
+    @Query(value = "SELECT * FROM usr u WHERE u.first_name LIKE %:substring%", nativeQuery = true)
+    List<User> findBySubFirstName(@Param("substring") String substring);
+    @Query(value = "SELECT * FROM usr u WHERE u.second_name LIKE %:substring%", nativeQuery = true)
+    List<User> findBySubSecondName(@Param("substring") String substring);
+    @Query(value = "SELECT * FROM usr u WHERE u.login LIKE %:substring%", nativeQuery = true)
+    List<User> findBySubLogin(@Param("substring") String substring);
 }

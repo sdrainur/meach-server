@@ -187,6 +187,7 @@ public class UserService {
             jsonObject.put("firstName", user.getFirstName());
             jsonObject.put("secondName", user.getSecondName());
             jsonObject.put("login", user.getLogin());
+            jsonObject.put("description", user.getDescription());
             jsonObject.put("readyToMeet", user.isReadyToMeet());
             jsonArray.put(jsonObject);
         }
@@ -200,10 +201,44 @@ public class UserService {
             jsonObject.put("firstName", user.getFirstName());
             jsonObject.put("secondName", user.getSecondName());
             jsonObject.put("login", user.getLogin());
+            jsonObject.put("description", user.getDescription());
             jsonObject.put("readyToMeet", user.isReadyToMeet());
             jsonArray.put(jsonObject);
         }
         return jsonArray;
+    }
+
+    public JSONObject createUserJson(User user) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("firstName", user.getFirstName());
+        jsonObject.put("secondName", user.getSecondName());
+        jsonObject.put("login", user.getLogin());
+        jsonObject.put("description", user.getDescription());
+        jsonObject.put("readyToMeet", user.isReadyToMeet());
+        return jsonObject;
+    }
+
+    public List<User> getByDescription(String substring) {
+        return userRepository.findByDescription(substring);
+    }
+
+    public List<User> getBySubFirstName(String substring) {
+        return userRepository.findBySubFirstName(substring);
+    }
+
+    public List<User> getBySubSecondName(String substring) {
+        return userRepository.findBySubSecondName(substring);
+    }
+
+    public List<User> getBySubLogin(String substring) {
+        return userRepository.findBySubLogin(substring);
+    }
+
+    public User setDescription(String login, String description) {
+        User user = userRepository.findByLogin(login);
+        user.setDescription(description);
+        userRepository.save(user);
+        return user;
     }
 
     public List<User> getReadyToMeetUsers() {

@@ -52,6 +52,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
 
+    private String description;
+
     private String activationCode;
 
     @NotNull

@@ -34,7 +34,7 @@ public class MessageController {
     @GetMapping("/getMessages/{receiverLogin}")
     @CrossOrigin(origins = {"http://localhost:8080/", "http://10.17.33.199:8080/"})
     public ResponseEntity<Object> getMessages(@PathVariable String receiverLogin) {
-        System.out.println(receiverLogin);
+//        System.out.println(receiverLogin);
         /*System.out.println(receiverLogin);
         if (userService.getByLogin(receiverLogin).isPresent()) {
             System.out.println(authService.getAuthenticatedUser().getLogin());
@@ -61,6 +61,7 @@ public class MessageController {
         ));
         for (Message message : messages) {
             JSONObject jsonObject = new JSONObject();
+            jsonObject.put("id", message.getId());
             jsonObject.put("senderLogin", message.getSender().getLogin());
             jsonObject.put("receiverLogin", message.getReceiver().getLogin());
             jsonObject.put("text", message.getText());

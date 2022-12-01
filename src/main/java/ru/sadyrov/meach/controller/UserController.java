@@ -2,6 +2,7 @@ package ru.sadyrov.meach.controller;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.hateoas.Link;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -53,12 +54,12 @@ public class UserController {
             user = userRepository.findByLogin(login);
         else
             user = userRepository.findByLogin(authService.getAuthInfo().getUsername());
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("firstName", user.getFirstName());
-        jsonObject.put("secondName", user.getSecondName());
-        jsonObject.put("login", user.getLogin());
-        jsonObject.put("readyToMeet", user.isReadyToMeet());
-        return new ResponseEntity<>(jsonObject.toString(), HttpStatus.OK);
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("firstName", user.getFirstName());
+//        jsonObject.put("secondName", user.getSecondName());
+//        jsonObject.put("login", user.getLogin());
+//        jsonObject.put("readyToMeet", user.isReadyToMeet());
+        return new ResponseEntity<>(userService.createUserJson(user).toString(), HttpStatus.OK);
     }
 
     @GetMapping("/users")
@@ -198,5 +199,48 @@ public class UserController {
                 userService.getReadyToMeetUsers()
         );
         return new ResponseEntity<>(users.toString(), HttpStatus.OK);
+    }
+
+    @GetMapping("/get-by-substring/description/{substring}")
+    public ResponseEntity<Object> getByDescription(@PathVariable String substring) {
+         return new ResponseEntity<>(
+                userService.createUsersJson(userService.getByDescription(substring)).toString(),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/get-by-substring/first-name/{substring}")
+    public ResponseEntity<Object> getBySubFirstName(@PathVariable String substring) {
+        return new ResponseEntity<>(
+                userService.createUsersJson(userService.getBySubFirstName(substring)).toString(),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/get-by-substring/second-name/{substring}")
+    public ResponseEntity<Object> getBySubSecondName(@PathVariable String substring) {
+        return new ResponseEntity<>(
+                userService.createUsersJson(userService.getBySubSecondName(substring)).toString(),
+                HttpStatus.OK
+        );
+    }
+
+    @GetMapping("/get-by-substring/login/{substring}")
+    public ResponseEntity<Object> getBySubLogin(@PathVariable String substring) {
+        return new ResponseEntity<>(
+                userService.createUsersJson(userService.getBySubLogin(substring)).toString(),
+                HttpStatus.OK
+        );
+    }
+
+
+    @PutMapping("/set-description")
+    public ResponseEntity<Object> setDescription(@RequestBody Map<String, String> request){
+        System.out.println(request);
+        JSONObject user = userService.createUserJson(userService.setDescription(
+                request.get("login"),
+                request.get("description")
+        ));
+        return new ResponseEntity<>(user.toString(), HttpStatus.OK);
     }
 }
