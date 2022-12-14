@@ -41,12 +41,16 @@ public class User {
 
     @NotBlank(message = "Введите вашу фамилию")
     @Length(min = 2, max = 20, message = "Размер фамилии должен иметь от 2 до 20 символов")
-//    @Pattern(regexp = "^[a-zA-Zа-яёА-ЯЁ]+$", message = "Введите вашу фамилию корректно")
+//       @Pattern(regexp = "^[a-zA-Zа-яёА-ЯЁ]+$", message = "Введите вашу фамилию корректно")
     private String secondName;
 
-    @NotBlank(message = "Введит ваш город")
+    private String activationCode;
+
+    @NotNull
+    private boolean active;
+//    @NotBlank(message = "Введит ваш город")
 //    @Pattern(regexp = "^[a-zA-Zа-яёА-ЯЁ]+$", message = "Введите ваш город корректно")
-    private String city;
+//    private String city;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @Enumerated(EnumType.STRING)
@@ -54,10 +58,6 @@ public class User {
 
     private String description;
 
-    private String activationCode;
-
-    @NotNull
-    private boolean active;
 //
 //    @OneToMany
 //    private Set<Article> articles;

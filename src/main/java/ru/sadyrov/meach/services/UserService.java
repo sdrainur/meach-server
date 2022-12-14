@@ -98,16 +98,16 @@ public class UserService {
 
     private void setActivationCode(User user) {
         System.out.println(user);
-        user.setActivationCode(UUID.randomUUID().toString().replaceAll("[^0-9]", "").substring(0, 5));
+        user.setActivationCode(UUID.randomUUID().toString().replaceAll("[^0-9]", "").substring(0, 6));
         if (!user.getEmail().isEmpty()) {
             String message = String.format(
-                    "Hello, %s \n" +
-                            "Welcome to meach! Your activation code: %s",
+                    "Здравствуйте!" +
+                            "\nВаш логин: %s" +
+                            "\nКод подтверждения %s",
                     user.getLogin(),
                     user.getActivationCode()
             );
-            mailService.sendMessage(user.getEmail(), "Activation", message);
-            System.out.println("Email was sent");
+            mailService.sendMessage(user.getEmail(), "Код активации", message);
         }
     }
 
@@ -162,6 +162,8 @@ public class UserService {
         User deletedUser = userRepository.findByLogin(DeletedUserid);
         if (deletedUser != null) {
             friends.remove(deletedUser);
+            deletedUser.getFriends().remove(user);
+            userRepository.save(deletedUser);
             userRepository.save(user);
             return true;
         }
@@ -188,7 +190,6 @@ public class UserService {
             jsonObject.put("secondName", user.getSecondName());
             jsonObject.put("login", user.getLogin());
             jsonObject.put("description", user.getDescription());
-            jsonObject.put("readyToMeet", user.isReadyToMeet());
             jsonArray.put(jsonObject);
         }
         return jsonArray;
@@ -202,7 +203,6 @@ public class UserService {
             jsonObject.put("secondName", user.getSecondName());
             jsonObject.put("login", user.getLogin());
             jsonObject.put("description", user.getDescription());
-            jsonObject.put("readyToMeet", user.isReadyToMeet());
             jsonArray.put(jsonObject);
         }
         return jsonArray;
@@ -214,7 +214,6 @@ public class UserService {
         jsonObject.put("secondName", user.getSecondName());
         jsonObject.put("login", user.getLogin());
         jsonObject.put("description", user.getDescription());
-        jsonObject.put("readyToMeet", user.isReadyToMeet());
         return jsonObject;
     }
 
@@ -232,6 +231,10 @@ public class UserService {
 
     public List<User> getBySubLogin(String substring) {
         return userRepository.findBySubLogin(substring);
+    }
+
+    public List<User> getByFirstNameAndSecondName(String name){
+        return userRepository.findByFirstNameAndSecondName(name);
     }
 
     public User setDescription(String login, String description) {

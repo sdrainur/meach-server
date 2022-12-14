@@ -28,8 +28,17 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "SELECT * FROM usr u WHERE u.first_name LIKE %:substring%", nativeQuery = true)
     List<User> findBySubFirstName(@Param("substring") String substring);
+
     @Query(value = "SELECT * FROM usr u WHERE u.second_name LIKE %:substring%", nativeQuery = true)
     List<User> findBySubSecondName(@Param("substring") String substring);
+
     @Query(value = "SELECT * FROM usr u WHERE u.login LIKE %:substring%", nativeQuery = true)
     List<User> findBySubLogin(@Param("substring") String substring);
+
+    @Query(value = "SELECT * FROM usr u WHERE\n" +
+            "                        LOWER(u.first_name) LIKE LOWER(CONCAT('%', :name, '%'))\n" +
+            "                       OR LOWER(u.second_name) LIKE LOWER(CONCAT('%', :name, '%'))\n" +
+            "                    or LOWER(CONCAT(u.first_name, ' ', u.second_name)) LIKE LOWER(CONCAT('%', :name, '%'))",
+            nativeQuery = true)
+    List<User> findByFirstNameAndSecondName(@Param("name") String name);
 }

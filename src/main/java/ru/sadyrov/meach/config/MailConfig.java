@@ -28,25 +28,15 @@ public class MailConfig {
     private String protocol;
 
     @Bean
-    public JavaMailSender getMailSender(){
+    public JavaMailSenderImpl getMailSender(){
         JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-
         mailSender.setHost(host);
         mailSender.setPort(port);
         mailSender.setUsername(username);
         mailSender.setPassword(password);
-
         Properties properties = mailSender.getJavaMailProperties();
-
         properties.setProperty("mail.transport.protocol", protocol);
         properties.setProperty("mail.debug", debug);
-//        properties.setProperty("mail.smtp.ssl.trust", "smtp.yandex.ru");
-
-//        properties.put("mail.transport.protocol", "smtp");
-//        properties.put("mail.smtp.auth", "true");
-//        properties.put("mail.smtp.starttls.enable", "true");
-//        properties.put("mail.debug", "true");
-
         return mailSender;
     }
 }

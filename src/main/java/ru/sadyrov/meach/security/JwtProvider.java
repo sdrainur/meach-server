@@ -90,18 +90,28 @@ public class JwtProvider {
     }
 
     public Claims getAccessClaims(@NonNull String token) {
-        return getClaims(token, jwtAccessSecret);
-    }
-
-    public Claims getRefreshClaims(@NonNull String token) {
-        return getClaims(token, jwtRefreshSecret);
-    }
-
-    private Claims getClaims(@NonNull String token, @NonNull Key secret) {
+//        return getClaims(token, jwtAccessSecret);
         return Jwts.parserBuilder()
-                .setSigningKey(secret)
+                .setSigningKey(jwtAccessSecret)
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
     }
+
+    public Claims getRefreshClaims(@NonNull String token) {
+//        return getClaims(token, jwtRefreshSecret);
+        return Jwts.parserBuilder()
+                .setSigningKey(jwtRefreshSecret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody();
+    }
+
+//    private Claims getClaims(@NonNull String token, @NonNull Key secret) {
+//        return Jwts.parserBuilder()
+//                .setSigningKey(secret)
+//                .build()
+//                .parseClaimsJws(token)
+//                .getBody();
+//    }
 }

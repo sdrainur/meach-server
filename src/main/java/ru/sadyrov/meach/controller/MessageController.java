@@ -32,23 +32,8 @@ public class MessageController {
     }
 
     @GetMapping("/getMessages/{receiverLogin}")
-    @CrossOrigin(origins = {"http://localhost:8080/", "http://10.17.33.199:8080/"})
+    @CrossOrigin(origins = {"http://localhost:8080/", "http://192.168.137.77:8080", "*"})
     public ResponseEntity<Object> getMessages(@PathVariable String receiverLogin) {
-//        System.out.println(receiverLogin);
-        /*System.out.println(receiverLogin);
-        if (userService.getByLogin(receiverLogin).isPresent()) {
-            System.out.println(authService.getAuthenticatedUser().getLogin());
-            List<Message> messages = messageRepository.findBySenderAndReceiver(
-                    authService.getAuthenticatedUser(),
-                    userService.getByLogin(receiverLogin).get());
-            for (Message m :
-                    messages) {
-                System.out.println(m.getText());
-            }
-            return messages;
-        } else {
-            return null;
-        }*/
         JSONArray jsonArray = new JSONArray();
         Set<Message> messages = new HashSet<>();
         messages.addAll(messageRepository.findBySenderAndReceiver(
@@ -68,19 +53,8 @@ public class MessageController {
             jsonObject.put("messageDateTime", message.getMessageDateTime().format(DateTimeFormatter.ofPattern("HH:mm")));
             jsonArray.put(jsonObject);
         }
-        System.out.println(jsonArray);
         return new ResponseEntity<>(jsonArray.toString(), HttpStatus.OK);
     }
-
-//    @MessageMapping("/addMessage")
-//    @SendTo("/topic/messages")
-//    public Message addMessage(Message message) {
-//        System.out.println("sending message");
-//        System.out.println(message.getSender().getLogin());
-//        System.out.println(message.getReceiver().getLogin());
-//        message.setMessageDateTime(LocalDateTime.now());
-//        return messageRepository.save(message);
-//    }
 
     @Transactional
     @MessageMapping("/addMessage")
