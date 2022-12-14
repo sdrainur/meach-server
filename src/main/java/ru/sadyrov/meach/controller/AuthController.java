@@ -14,7 +14,7 @@ import javax.security.auth.message.AuthException;
 @RestController
 @RequestMapping("api/auth")
 @RequiredArgsConstructor
-@CrossOrigin(origins = {"http://localhost:8080", "http://192.168.137.77:8080", "*"})
+@CrossOrigin(origins = {"http://localhost:8080", "http://192.168.137.77:8080"})
 public class AuthController {
 
     private final AuthService authService;

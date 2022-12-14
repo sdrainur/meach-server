@@ -32,7 +32,7 @@ public class MessageController {
     }
 
     @GetMapping("/getMessages/{receiverLogin}")
-    @CrossOrigin(origins = {"http://localhost:8080/", "http://192.168.137.77:8080", "*"})
+    @CrossOrigin(origins = {"http://localhost:8080/", "http://192.168.137.77:8080"})
     public ResponseEntity<Object> getMessages(@PathVariable String receiverLogin) {
         JSONArray jsonArray = new JSONArray();
         Set<Message> messages = new HashSet<>();
